@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Liste de lecture — Maturité</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,Helvetica,sans-serif;background:#f5f5f3;color:#1a1a1a;padding:24px 16px}
+.wrap{max-width:680px;margin:0 auto}
+h1{font-size:20px;font-weight:600;color:#185FA5;margin-bottom:3px}
+.sub{font-size:13px;color:#666;margin-bottom:20px}
+.section{background:#fff;border:1px solid #e8e8e8;border-radius:12px;padding:20px;margin-bottom:12px}
+.sec-title{font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.07em;margin-bottom:14px}
+.field{margin-bottom:11px;position:relative}
+label{display:block;font-size:13px;color:#555;margin-bottom:4px}
+input[type=text],select{width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:7px;font-size:13px;font-family:Arial,sans-serif;background:#fff;color:#1a1a1a}
+input[type=text]:focus,select:focus{outline:none;border-color:#185FA5}
+.row2{display:grid;grid-template-columns:2fr 1fr;gap:8px}
+.row3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px}
+.book-card{background:#f8f9fb;border:1px solid #e8e8e8;border-radius:8px;padding:14px;margin-bottom:8px}
+.book-nr{font-size:12px;font-weight:700;color:#555;margin-bottom:10px}
+.crit-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
+.crit{border-radius:7px;padding:8px 10px;display:flex;align-items:flex-start;gap:7px;border:1px solid transparent;font-size:12px;line-height:1.4}
+.crit.ok{background:#EAF3DE;border-color:#C0DD97;color:#27500A}
+.crit.fail{background:#FCEBEB;border-color:#F7C1C1;color:#A32D2D}
+.crit-icon{font-size:13px;flex-shrink:0;margin-top:1px;font-style:normal}
+.crit b{display:block;font-weight:600}
+.pts-row{display:flex;gap:10px;align-items:stretch;margin-bottom:10px}
+.pts-box{text-align:center;padding:10px 16px;background:#f5f5f3;border-radius:8px;border:1px solid #e8e8e8}
+.pts-num{font-size:26px;font-weight:600}
+.pts-lbl{font-size:11px;color:#888}
+.status-ok{background:#EAF3DE;border:1px solid #C0DD97;border-radius:8px;padding:10px 14px;font-size:13px;color:#27500A;font-weight:600;text-align:center;flex:1;display:flex;align-items:center;justify-content:center}
+.status-fail{background:#FCEBEB;border:1px solid #F7C1C1;border-radius:8px;padding:10px 14px;font-size:13px;color:#A32D2D;font-weight:600;text-align:center;flex:1;display:flex;align-items:center;justify-content:center}
+.sig-wrap{position:relative;border:1px solid #ccc;border-radius:8px;background:#fff;overflow:hidden;margin-bottom:6px}
+.sig-wrap canvas{display:block;cursor:crosshair;touch-action:none;width:100%;height:130px}
+.sig-clear{position:absolute;top:8px;right:8px;font-size:11px;padding:3px 10px;border:1px solid #ccc;border-radius:20px;background:#fff;cursor:pointer;color:#666}
+.sig-clear:hover{background:#f5f5f3}
+.sig-hint{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);font-size:12px;color:#aaa;pointer-events:none;white-space:nowrap;transition:opacity .3s}
+.confirm-text{font-size:11px;color:#888;margin-top:8px;line-height:1.5}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+.submit-btn{width:100%;padding:13px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:Arial,sans-serif}
+.submit-btn.pdf{background:#f5f5f3;color:#1a1a1a;border:1px solid #ddd}
+.submit-btn.pdf:hover{background:#eee}
+.submit-btn.email{background:#185FA5;color:#fff}
+.submit-btn.email:hover{background:#0C447C}
+.submit-btn:disabled{opacity:.4;cursor:default}
+/* Autocomplete dropdown */
+.ac-list{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #ddd;border-top:none;border-radius:0 0 7px 7px;z-index:100;max-height:200px;overflow-y:auto;display:none}
+.ac-item{padding:8px 10px;font-size:13px;cursor:pointer;border-bottom:1px solid #f0f0f0}
+.ac-item:last-child{border-bottom:none}
+.ac-item:hover,.ac-item.active{background:#E6F1FB;color:#0C447C}
+.ac-item .ac-sub{font-size:11px;color:#888;margin-top:1px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Liste de lecture — Maturité</h1>
+  <p class="sub">Formulaire de dépôt personnel · Français · Gymnase de Kirchenfeld</p>
+
+  <div class="section">
+    <div class="sec-title">Informations personnelles</div>
+    <div class="row2">
+      <div class="field"><label>Nom &amp; prénom</label><input type="text" id="name" placeholder="Dupont, Marie" oninput="update()"></div>
+      <div class="field"><label>Classe</label><input type="text" id="klasse" placeholder="4Ma" oninput="update()"></div>
+    </div>
+    <div class="field"><label>Membres du groupe de lecture</label><input type="text" id="group" placeholder="Müller Jan, Schmidt Laura" oninput="update()"></div>
+    <div class="field"><label>Thème global</label><input type="text" id="theme" placeholder="L'individu face à la société" oninput="update()"></div>
+  </div>
+
+  <div class="section">
+    <div class="sec-title">Œuvres choisies</div>
+    <div id="books"></div>
+  </div>
+
+  <div class="section">
+    <div class="sec-title">Vérification des critères</div>
+    <div class="pts-row">
+      <div class="pts-box"><div class="pts-num" id="pts-num">0</div><div class="pts-lbl">points / 7 requis</div></div>
+      <div id="status-box" class="status-fail">Critères non remplis</div>
+    </div>
+    <div class="crit-grid" id="crit-grid"></div>
+  </div>
+
+  <div class="section">
+    <div class="sec-title">Signature</div>
+    <div class="field" style="margin-bottom:10px">
+      <label>Lieu &amp; date</label>
+      <input type="text" id="sigdate" style="max-width:260px" placeholder="Köniz, 16. Dezember 2024" oninput="update()">
+    </div>
+    <div class="sig-wrap">
+      <canvas id="sigCanvas"></canvas>
+      <button class="sig-clear" onclick="clearSig()">Löschen</button>
+      <span class="sig-hint" id="sig-hint">Hier unterschreiben (Finger oder Maus)</span>
+    </div>
+    <p class="confirm-text">Je confirme que les œuvres mentionnées ci-dessus n'ont pas été lues en classe (sauf indication contraire), que les informations sont exactes et que j'ai pris connaissance des règles de composition de la liste de lecture pour l'épreuve orale de maturité.</p>
+  </div>
+
+  <div class="btn-row">
+    <button class="submit-btn pdf" id="pdf-btn" onclick="openPDF()" disabled>Als PDF speichern</button>
+    <button class="submit-btn email" id="email-btn" onclick="sendEmail()" disabled>Per E-Mail einreichen</button>
+  </div>
+</div>
+
+<script>
+const EPOCHS=[
+  {l:"17e siècle",v:"17"},
+  {l:"18e siècle",v:"18"},
+  {l:"19e siècle",v:"19"},
+  {l:"20e siècle (av. 1980)",v:"20"},
+  {l:"1980–présent",v:"21"}
+];
+
+// Full reading list with autocomplete data
+const LIVRES=[
+  // 17e
+  {a:"Molière",t:"L'Avare",p:2.5,e:"17",g:"comédie, avarice, amour"},
+  {a:"Molière",t:"Le Bourgeois gentilhomme",p:2.5,e:"17",g:"com., bourgeois qui veut devenir noble"},
+  {a:"Molière",t:"Le Misanthrope",p:3,e:"17",g:"com., aimer humains? honnêteté en société"},
+  {a:"Molière",t:"Le Tartuffe ou l'Imposteur",p:3,e:"17",g:"com., vers, argent, hypocrisie"},
+  {a:"Molière",t:"Le Malade imaginaire",p:3,e:"17",g:"com.-ballet, critique de la médecine"},
+  {a:"Racine",t:"Phèdre",p:3,e:"17",g:"trag., amour"},
+  {a:"Racine",t:"Andromaque",p:3,e:"17",g:"trag., amour"},
+  {a:"Corneille",t:"Le Cid",p:3,e:"17",g:"trag., amour, honneur"},
+  {a:"Madame de Lafayette",t:"La Princesse de Clèves",p:3,e:"17",g:"amour, intrigue"},
+  // 18e
+  {a:"Beaumarchais",t:"Le Barbier de Séville",p:2,e:"18",g:"com., amour, famille, critique"},
+  {a:"Diderot",t:"Jacques le fataliste",p:3,e:"18",g:"femme et religion"},
+  {a:"Diderot",t:"Le neveu de Rameau",p:3,e:"18",g:"dialogue, cynisme, culture, hypocrisie"},
+  {a:"Laclos, Ch. de",t:"Les liaisons dangereuses",p:3,e:"18",g:"amour, intrigues"},
+  {a:"Marivaux",t:"Le jeu de l'amour et du hasard",p:2,e:"18",g:"amour, couples, test"},
+  {a:"Montesquieu",t:"Lettres persanes",p:3,e:"18",g:"lettres, Paris vue par étrangers"},
+  {a:"Prévost",t:"Manon Lescaut",p:3,e:"18",g:"amour, prostitution, Louisiane"},
+  {a:"Rousseau, Jean-Jacques",t:"Confessions I",p:3,e:"18",g:"autobiographie"},
+  {a:"Voltaire",t:"Candide",p:3,e:"18",g:"voyages et spectacle du monde"},
+  // 19e
+  {a:"Balzac",t:"Le colonel Chabert",p:3,e:"19",g:"homme cru mort lutte pour être reconnu"},
+  {a:"Balzac",t:"Le père Goriot",p:4,e:"19",g:"famille, critique sociale"},
+  {a:"Baudelaire",t:"Les Fleurs du mal",p:3,e:"19",g:"poésie, vie, décadence, érotisme"},
+  {a:"Baudelaire",t:"Spleen de Paris",p:3,e:"19",g:"poésie, Paris, vie"},
+  {a:"Daudet",t:"Lettres de mon moulin",p:2,e:"19",g:"nouvelles de Provence"},
+  {a:"Flaubert",t:"Madame Bovary",p:4,e:"19",g:"amour, passions, adultère"},
+  {a:"Flaubert",t:"L'Éducation sentimentale",p:4,e:"19",g:"amour, carrière"},
+  {a:"Hugo",t:"Le Dernier jour d'un condamné",p:2,e:"19",g:"journal d'un condamné à mort"},
+  {a:"Hugo",t:"Les Misérables — «Fantine»",p:4,e:"19",g:"grande saga, peuple, injustice"},
+  {a:"Hugo",t:"Quatre-vingt-treize",p:4,e:"19",g:"grand roman, pour le roi ou la révolution?"},
+  {a:"Hugo",t:"Notre-Dame de Paris",p:4,e:"19",g:"Paris, moyen-âge, amour"},
+  {a:"Maupassant",t:"Une vie",p:3,e:"19",g:"vie sentimentale d'une femme"},
+  {a:"Maupassant",t:"Boule de suif",p:2,e:"19",g:"bourgeois, peuple, prostitution"},
+  {a:"Maupassant",t:"Pierre et Jean",p:3,e:"19",g:"frères, jalousie, héritage"},
+  {a:"Mérimée",t:"Carmen",p:1.5,e:"19",g:"amour fatal"},
+  {a:"Mérimée",t:"Mateo Falcone",p:1,e:"19",g:"Corse, tuer son fils pour l'honneur familial?"},
+  {a:"Rostand",t:"Cyrano de Bergerac",p:3,e:"19",g:"vers, amour, beauté-laideur, poésie"},
+  {a:"Stendhal",t:"Le Rouge et le Noir",p:4,e:"19",g:"amour, carrière, religion"},
+  {a:"Zola",t:"L'Assommoir",p:4,e:"19",g:"vie des prolétaires, ville"},
+  {a:"Zola",t:"Germinal",p:4,e:"19",g:"vie dans les mines, famille"},
+  // 20e classique
+  {a:"Alain-Fournier",t:"Le grand Meaulnes",p:3,e:"20",g:"adolescence, rêve, école, amour"},
+  {a:"Anouilh, Jean",t:"Antigone",p:2,e:"20",g:"amour interdit, suicide, résistance"},
+  {a:"Beauvoir, Simone de",t:"La Femme rompue",p:3,e:"20",g:"vie conjugale"},
+  {a:"Camus, Albert",t:"La Chute",p:2,e:"20",g:"suicide, culpabilité, juge"},
+  {a:"Camus, Albert",t:"L'Étranger",p:3,e:"20",g:"meurtre, culpabilité, existence"},
+  {a:"Camus, Albert",t:"La Peste",p:4,e:"20",g:"épidémie, engagement"},
+  {a:"Camus, Albert",t:"Les Justes",p:2,e:"20",g:"terrorisme, justice"},
+  {a:"Camus, Albert",t:"Le premier homme",p:3,e:"20",g:"autobiographie"},
+  {a:"Claudel, Paul",t:"L'Annonce faite à Marie",p:3,e:"20",g:"amour, sacrifice"},
+  {a:"Del Castillo, Michel",t:"Tanguy",p:2,e:"20",g:"enfance, guerre, Canada"},
+  {a:"Duras, Marguerite",t:"L'Amant",p:3,e:"20",g:"amour, mère, Chine"},
+  {a:"Gary, Romain",t:"La Vie devant soi",p:3,e:"20",g:"jeune garçon, juifs et musulmans, humour"},
+  {a:"Giono, Jean",t:"Le Hussard sur le toit",p:4,e:"20",g:"Provence, indépendance politique, choléra, amour"},
+  {a:"Gide, André",t:"La symphonie pastorale",p:2,e:"20",g:"aveugle, religion, amour"},
+  {a:"Ionesco, Eugène",t:"Le Roi se meurt",p:2,e:"20",g:"roi, mort, peur, absurde"},
+  {a:"Ionesco, Eugène",t:"Rhinocéros",p:2,e:"20",g:"invasion, peur, absurde"},
+  {a:"Mauriac, François",t:"La fin de la nuit",p:2,e:"20",g:"dernier amour, femme en déclin"},
+  {a:"Mauriac, François",t:"Thérèse Desqueyroux",p:3,e:"20",g:"femme criminelle"},
+  {a:"Sagan, Françoise",t:"Bonjour tristesse",p:2,e:"20",g:"adolescence, fille-père, amours"},
+  {a:"Saint-Exupéry, A. de",t:"Vol de nuit",p:2.5,e:"20",g:"pilote, responsabilité"},
+  {a:"Sartre, Jean-Paul",t:"Les mots",p:3,e:"20",g:"autobiographie"},
+  {a:"Sartre, Jean-Paul",t:"Huis clos",p:1.5,e:"20",g:"enfermement, enfer sur terre"},
+  {a:"Sartre, Jean-Paul",t:"Le mur et autres nouvelles",p:3,e:"20",g:"5 nouvelles sur 5 marginaux"},
+  {a:"Sartre, Jean-Paul",t:"La Putain respectueuse",p:1.5,e:"20",g:"racisme, apartheid"},
+  {a:"Vercors",t:"Le silence de la mer et autres nouvelles",p:2,e:"20",g:"guerre 39-45, résistance"},
+  {a:"Vian, Boris",t:"L'écume des jours",p:2.5,e:"20",g:"amour, maladie, jazz"},
+  // 20e/21e récent
+  {a:"Adam, Olivier",t:"Je vais bien, ne t'en fais pas",p:2,e:"21",g:"frère absent, drame familial"},
+  {a:"Carrère, Emmanuel",t:"La classe de neige",p:2,e:"21",g:"enfance, abus"},
+  {a:"Van Cauwelaert, Didier",t:"Un aller simple",p:2,e:"21",g:"voyage au Maroc, amitié"},
+  {a:"Claudel, Philippe",t:"La petite fille de M. Linh",p:1.5,e:"21",g:"émigration, vieil homme et petite fille"},
+  {a:"Darrieusecq, Marie",t:"Truismes",p:2,e:"21",g:"critique sociale"},
+  {a:"Echenoz, Jean",t:"Je m'en vais",p:3,e:"21",g:"art, trésor, vol, vie"},
+  {a:"Echenoz, Jean",t:"14",p:2,e:"21",g:"première guerre mondiale"},
+  {a:"Fermine, Maxence",t:"Opium",p:2,e:"21",g:"quête, voyage, Chine"},
+  {a:"Gaudé, Laurent",t:"Eldorado",p:3,e:"21",g:"immigrés clandestins, marine"},
+  {a:"Gaudé, Laurent",t:"Le Soleil des Scorta",p:3,e:"21",g:"mafia, Italie, famille"},
+  {a:"Gavalda, Anna",t:"Je voudrais que quelqu'un m'attende quelque part",p:2,e:"21",g:"nouvelles modernes"},
+  {a:"Grimbert, Philippe",t:"Un secret",p:2,e:"21",g:"secret de famille, guerre 39-45"},
+  {a:"Huston, Nancy",t:"Cantique des plaines",p:3,e:"21",g:"souvenir d'enfance, Canada, Indiens"},
+  {a:"Louis, Edouard",t:"En finir avec Eddy Bellegueule",p:3,e:"21",g:"jeunesse, homosexualité"},
+  {a:"Modiano, Patrick",t:"Dora Bruder",p:2,e:"21",g:"recherche d'une fille juive disparue, IIe Guerre"},
+  {a:"Nothomb, Amélie",t:"Hygiène de l'assassin",p:2,e:"21",g:"dialogue, journaliste, assassin"},
+  {a:"Nothomb, Amélie",t:"Stupeur et tremblements",p:2,e:"21",g:"jeune fille au travail au Japon"},
+  {a:"Quignard, Pascal",t:"Tous les matins du monde",p:2,e:"21",g:"17e siècle, musique, amour"},
+  {a:"Reza, Yasmina",t:"Art",p:2,e:"21",g:"art moderne, amitié"},
+  {a:"Reza, Yasmina",t:"Le Dieu du carnage",p:1.5,e:"21",g:"parents, violence, comédie"},
+  {a:"Schmitt, E.-E.",t:"M. Ibrahim et les fleurs du Coran",p:1.5,e:"21",g:"enfance, éducation, Paris"},
+  {a:"Slimani, Leïla",t:"Chanson douce",p:3,e:"21",g:"drame, famille, thriller"},
+  // Francophones
+  {a:"Abécassis, Eliette",t:"La Répudiée",p:2,e:"21",g:"Israël — religion, mariage"},
+  {a:"Bâ, Mariama",t:"Une si longue lettre",p:2,e:"21",g:"Sénégal — femme et traditions"},
+  {a:"Ben Jelloun, Tahar",t:"L'Enfant de sable",p:2,e:"21",g:"Maroc — fille indésirée"},
+  {a:"Ben Jelloun, Tahar",t:"Cette aveuglante absence de lumière",p:2,e:"21",g:"Maroc — vie en prison, résilience"},
+  {a:"Bovard, Jacques-Etienne",t:"Une leçon de flûte avant de mourir",p:2,e:"21",g:"Suisse — adolescence, suicide"},
+  {a:"Chamoiseau, Patrick",t:"Texaco",p:4,e:"21",g:"Martinique — histoire Martinique"},
+  {a:"Chessex, Jacques",t:"Un Juif pour l'exemple",p:2,e:"21",g:"Suisse — Nazis, assassinat"},
+  {a:"Condé, Marie",t:"Le cœur à rire et à pleurer",p:2,e:"21",g:"Guadeloupe — autobiographie"},
+  {a:"Dicker, Joël",t:"La Vérité sur l'affaire Harry Quebert",p:3.5,e:"21",g:"Suisse — polar, amour, Amérique"},
+  {a:"Diome, Fatou",t:"Le Ventre de l'Atlantique",p:3.5,e:"21",g:"Sénégal — football, jeunes Sénégalais"},
+  {a:"Diop, Boubakar Boris",t:"Murambi, le livre des ossements",p:2.5,e:"21",g:"Rwanda — génocide, révolte"},
+  {a:"Fanon, Frantz",t:"Peau noire, masques blancs",p:2,e:"21",g:"Martinique — essai, colonialisme, identité"},
+  {a:"Kristof, Agota",t:"Le grand cahier",p:2,e:"21",g:"Suisse — frères jumeaux, guerre"},
+  {a:"Mokkedem, Malika",t:"L'Interdite",p:3,e:"21",g:"Algérie — retour aux racines"},
+  {a:"Ramuz, C. F.",t:"Aline",p:1.5,e:"21",g:"Suisse — campagne, jeunesse, amour"},
+  {a:"Ramuz, C. F.",t:"Derborence",p:2.5,e:"21",g:"Suisse — catastrophe naturelle, Valais"},
+  {a:"Ramuz, C. F.",t:"La grande peur dans la montagne",p:2.5,e:"21",g:"Suisse — Valais, surnaturel"},
+  {a:"Sembène, Ousmane",t:"Xala",p:2.5,e:"21",g:"Sénégal — polygamie, impuissance"},
+  {a:"Sijie, Dai",t:"Balzac et la petite tailleuse chinoise",p:3,e:"21",g:"Chine — révolution Mao, intellectuels"},
+  {a:"Verdan, Nicolas",t:"Le patient du Dr Hirschfeld",p:3.5,e:"21",g:"Suisse — queer, persécution nazie"},
+  {a:"Z'Graggen, Yvette",t:"Le filet de l'oiseleur",p:2,e:"21",g:"Suisse — adolescence difficile"},
+  {a:"Z'Graggen, Yvette",t:"Matthias Berg",p:2,e:"21",g:"Suisse — père et fille, secret, 2e guerre"},
+  {a:"Sansal, Boualem",t:"Le village de l'Allemand",p:3,e:"21",g:"Algérie — deux frères, Shoah"},
+];
+
+const PTS_OPTIONS=[1,1.5,2,2.5,3,3.5,4];
+const EPOCH_MAP={"17":"17e siècle","18":"18e siècle","19":"19e siècle","20":"20e siècle (av. 1980)","21":"1980–présent"};
+
+function booksHTML(){
+  let h='';
+  for(let i=1;i<=4;i++){
+    const opt=i===4?'<span style="font-weight:400;color:#aaa">(optionnel)</span>':'';
+    h+=`<div class="book-card">
+    <div class="book-nr">Œuvre ${i} ${opt}</div>
+    <div class="row2" style="margin-bottom:8px">
+      <div class="field" style="position:relative">
+        <label>Titre</label>
+        <input type="text" id="t${i}" placeholder="Tapez pour chercher…" oninput="acInput('t',${i})" onblur="acBlur('t',${i})" onkeydown="acKey(event,'t',${i})" autocomplete="off">
+        <div class="ac-list" id="ac-t${i}"></div>
+      </div>
+      <div class="field" style="position:relative">
+        <label>Auteur·e</label>
+        <input type="text" id="a${i}" placeholder="Tapez pour chercher…" oninput="acInput('a',${i})" onblur="acBlur('a',${i})" onkeydown="acKey(event,'a',${i})" autocomplete="off">
+        <div class="ac-list" id="ac-a${i}"></div>
+      </div>
+    </div>
+    <div class="row3">
+      <div class="field"><label>Points</label><select id="p${i}" onchange="update()">
+        <option value="0">—</option>
+        ${PTS_OPTIONS.map(v=>`<option value="${v}">${v}</option>`).join('')}
+      </select></div>
+      <div class="field"><label>Époque</label><select id="e${i}" onchange="update()">
+        <option value="">—</option>
+        ${Object.entries(EPOCH_MAP).map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}
+      </select></div>
+      <div class="field"><label>Liste officielle</label><select id="o${i}" onchange="update()">
+        <option value="yes">Oui</option><option value="no">Non</option>
+      </select></div>
+    </div>
+    <div class="field"><label>Statut</label><select id="s${i}" onchange="update()">
+      <option value="new">Non lu en classe</option>
+      <option value="indiv">Lecture individuelle Francophonie (GYM3)</option>
+      <option value="class">Lu en classe — invalide</option>
+    </select></div>
+    </div>`;
+  }
+  return h;
+}
+document.getElementById('books').innerHTML=booksHTML();
+
+// ── Autocomplete logic ────────────────────────────────────────────────────
+let acIdx={};
+
+function normalize(s){return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
+
+function acInput(field,i){
+  const val=document.getElementById((field==='t'?'t':'a')+i).value;
+  if(val.length<2){closeAc(field,i);update();return;}
+  const nv=normalize(val);
+  let matches=[];
+  if(field==='t'){
+    matches=LIVRES.filter(l=>normalize(l.t).includes(nv)).slice(0,8);
+  } else {
+    const seen=new Set();
+    LIVRES.forEach(l=>{if(normalize(l.a).includes(nv)&&!seen.has(l.a)){seen.add(l.a);matches.push(l);}});
+    matches=matches.slice(0,8);
+  }
+  const list=document.getElementById('ac-'+field+i);
+  if(!matches.length){list.style.display='none';update();return;}
+  acIdx[field+i]=-1;
+  list.innerHTML=matches.map((l,idx)=>
+    field==='t'
+      ? `<div class="ac-item" data-idx="${idx}" onmousedown="acSelect('t',${i},${idx},'${escJ(l.t)}','${escJ(l.a)}','${l.p}','${l.e}')"><strong>${l.t}</strong><div class="ac-sub">${l.a} · ${EPOCH_MAP[l.e]} · ${l.p} pts</div></div>`
+      : `<div class="ac-item" data-idx="${idx}" onmousedown="acSelectAuthor(${i},${idx},'${escJ(l.a)}')"><strong>${l.a}</strong></div>`
+  ).join('');
+  list.style.display='block';
+  update();
+}
+
+function escJ(s){return s.replace(/'/g,"\\'").replace(/"/g,'&quot;');}
+
+function acSelect(field,i,idx,titre,auteur,pts,epoque){
+  document.getElementById('t'+i).value=titre;
+  document.getElementById('a'+i).value=auteur;
+  document.getElementById('p'+i).value=pts;
+  document.getElementById('e'+i).value=epoque;
+  document.getElementById('o'+i).value='yes';
+  closeAc('t',i);
+  closeAc('a',i);
+  update();
+}
+
+function acSelectAuthor(i,idx,auteur){
+  document.getElementById('a'+i).value=auteur;
+  closeAc('a',i);
+  update();
+}
+
+function acBlur(field,i){setTimeout(()=>closeAc(field,i),200);}
+function closeAc(field,i){
+  const el=document.getElementById('ac-'+field+i);
+  if(el)el.style.display='none';
+}
+
+function acKey(e,field,i){
+  const list=document.getElementById('ac-'+field+i);
+  if(list.style.display==='none')return;
+  const items=list.querySelectorAll('.ac-item');
+  let idx=acIdx[field+i]||(-1);
+  if(e.key==='ArrowDown'){e.preventDefault();idx=Math.min(idx+1,items.length-1);}
+  else if(e.key==='ArrowUp'){e.preventDefault();idx=Math.max(idx-1,0);}
+  else if(e.key==='Enter'&&idx>=0){e.preventDefault();items[idx].dispatchEvent(new Event('mousedown'));return;}
+  else if(e.key==='Escape'){closeAc(field,i);return;}
+  else return;
+  acIdx[field+i]=idx;
+  items.forEach((el,j)=>el.classList.toggle('active',j===idx));
+}
+
+// ── Criteria & update ────────────────────────────────────────────────────
+const gv=id=>(document.getElementById(id)||{}).value||'';
+const gf=id=>parseFloat(gv(id))||0;
+let allOk=false;
+
+function update(){
+  const pts=[1,2,3,4].map(i=>gf('p'+i));
+  const total=Math.round(pts.reduce((a,b)=>a+b,0)*10)/10;
+  const epochs=[1,2,3,4].map(i=>gv('e'+i)).filter(Boolean);
+  const uniqueEpochs=new Set(epochs);
+  const titles=[1,2,3,4].map(i=>gv('t'+i));
+  const filled=titles.filter(t=>t.trim()).length;
+  const officials=[1,2,3,4].map(i=>gv('o'+i));
+  const statuses=[1,2,3,4].map(i=>gv('s'+i));
+
+  const crits=[
+    {label:"3 ou 4 œuvres renseignées",ok:filled>=3,detail:filled>=3?filled+" œuvre(s) — OK":filled+"/3 minimum"},
+    {label:"≥ 7 points (total: "+total+")",ok:total>=7,detail:total>=7?total+" pts — OK":total+" pts — insuffisant"},
+    {label:"≥ 3 époques différentes",ok:uniqueEpochs.size>=3,detail:uniqueEpochs.size+"/3 époque(s)"},
+    {label:"≥ 2 sur liste officielle",ok:officials.filter((o,i)=>o==='yes'&&titles[i].trim()).length>=2,detail:officials.filter((o,i)=>o==='yes'&&titles[i].trim()).length+"/2"},
+    {label:"Aucune lue en classe",ok:statuses.filter(s=>s==='class').length===0,detail:statuses.filter(s=>s==='class').length===0?"OK":"Invalide"},
+    {label:"Thème défini",ok:gv('theme').trim().length>3,detail:gv('theme').trim().length>3?"OK":"Manque"},
+  ];
+
+  const pEl=document.getElementById('pts-num');
+  pEl.textContent=total;
+  pEl.style.color=total>=7?'#3B6D11':total>=5?'#BA7517':'#A32D2D';
+
+  document.getElementById('crit-grid').innerHTML=crits.map(c=>
+    '<div class="crit '+(c.ok?'ok':'fail')+'"><em class="crit-icon">'+(c.ok?'✓':'✗')+'</em><div><b>'+c.label+'</b>'+c.detail+'</div></div>'
+  ).join('');
+
+  allOk=crits.every(c=>c.ok);
+  const sb=document.getElementById('status-box');
+  if(allOk){sb.className='status-ok';sb.textContent='Tous les critères sont remplis ✓';}
+  else{sb.className='status-fail';sb.textContent=crits.filter(c=>!c.ok).length+' critère(s) non rempli(s)';}
+
+  const hasSig=!sigEmpty();
+  const hasDate=gv('sigdate').trim().length>3;
+  const hasName=gv('name').trim().length>1;
+  const ready=allOk&&hasSig&&hasDate&&hasName;
+  document.getElementById('pdf-btn').disabled=!ready;
+  document.getElementById('email-btn').disabled=!ready;
+}
+
+// ── Signature canvas ──────────────────────────────────────────────────────
+const canvas=document.getElementById('sigCanvas');
+const ctx=canvas.getContext('2d');
+let drawing=false,hasDraw=false;
+
+function resizeCanvas(){
+  const rect=canvas.getBoundingClientRect();
+  const ratio=window.devicePixelRatio||1;
+  canvas.width=rect.width*ratio;
+  canvas.height=130*ratio;
+  ctx.scale(ratio,ratio);
+  ctx.strokeStyle='#1a1a1a';ctx.lineWidth=2.5;ctx.lineCap='round';ctx.lineJoin='round';
+}
+resizeCanvas();
+window.addEventListener('resize',()=>{if(!hasDraw)resizeCanvas();});
+
+function getPos(e){const r=canvas.getBoundingClientRect();const src=e.touches?e.touches[0]:e;return{x:src.clientX-r.left,y:src.clientY-r.top};}
+canvas.addEventListener('mousedown',e=>{drawing=true;const p=getPos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);});
+canvas.addEventListener('mousemove',e=>{if(!drawing)return;const p=getPos(e);ctx.lineTo(p.x,p.y);ctx.stroke();hasDraw=true;document.getElementById('sig-hint').style.opacity='0';update();});
+canvas.addEventListener('mouseup',()=>{drawing=false;});
+canvas.addEventListener('mouseleave',()=>{drawing=false;});
+canvas.addEventListener('touchstart',e=>{e.preventDefault();drawing=true;const p=getPos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);},{passive:false});
+canvas.addEventListener('touchmove',e=>{e.preventDefault();if(!drawing)return;const p=getPos(e);ctx.lineTo(p.x,p.y);ctx.stroke();hasDraw=true;document.getElementById('sig-hint').style.opacity='0';update();},{passive:false});
+canvas.addEventListener('touchend',()=>{drawing=false;});
+
+function sigEmpty(){
+  if(!hasDraw)return true;
+  const d=ctx.getImageData(0,0,canvas.width,canvas.height).data;
+  for(let i=3;i<d.length;i+=4){if(d[i]>10)return false;}
+  return true;
+}
+function clearSig(){ctx.clearRect(0,0,canvas.width,canvas.height);hasDraw=false;document.getElementById('sig-hint').style.opacity='1';update();}
+
+// ── PDF & Email ───────────────────────────────────────────────────────────
+function getBookData(){
+  return [1,2,3,4].map(i=>{
+    const ep=EPOCH_MAP[gv('e'+i)];
+    return{titre:gv('t'+i),auteur:gv('a'+i),pts:gf('p'+i),epoque:ep||'—',officielle:gv('o'+i)==='yes'?'Oui':'Non'};
+  }).filter(b=>b.titre.trim());
+}
+
+function openPDF(){
+  const sigData=canvas.toDataURL('image/png');
+  const name=gv('name'),klasse=gv('klasse'),group=gv('group'),theme=gv('theme'),date=gv('sigdate');
+  const books=getBookData();
+  const total=Math.round(books.reduce((s,b)=>s+b.pts,0)*10)/10;
+
+  const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Liste de lecture — `+name+`</title>
+<style>
+body{font-family:Arial,sans-serif;max-width:700px;margin:40px auto;padding:0 24px;color:#1a1a1a;font-size:13px}
+h1{font-size:20px;font-weight:700;color:#185FA5;margin-bottom:3px}
+.sub{color:#888;font-size:12px;margin-bottom:28px}
+.section{margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid #eee}
+.sec-title{font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px}
+table.info{width:100%;border-collapse:collapse;font-size:13px}
+table.info td{padding:5px 0;border-bottom:1px solid #f0f0f0}
+table.info td:first-child{color:#888;width:170px}
+table.info td:last-child{font-weight:500}
+table.books{width:100%;border-collapse:collapse;font-size:12px;margin-top:6px}
+table.books th{background:#185FA5;color:#fff;padding:7px 10px;text-align:left;font-weight:600}
+table.books td{padding:7px 10px;border-bottom:1px solid #eee}
+table.books tr:nth-child(even) td{background:#f7f9fc}
+.badge{display:inline-block;background:#EAF3DE;color:#27500A;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700}
+.status{background:#EAF3DE;color:#27500A;padding:7px 16px;border-radius:7px;font-weight:700;display:inline-block;font-size:13px}
+.sig-row{display:flex;gap:32px;align-items:flex-end;margin-top:10px}
+.sig-block{flex:1}
+.sig-line{border-bottom:1px solid #999;height:70px;display:flex;align-items:flex-end;margin-bottom:5px}
+.sig-line img{max-height:66px;max-width:100%;object-fit:contain}
+.lp-line{border-bottom:1px solid #999;height:70px;margin-bottom:5px}
+.sig-label{font-size:11px;color:#888}
+.confirm{font-size:11px;color:#888;margin-top:18px;padding:10px 12px;background:#f9f9f9;border-radius:6px;line-height:1.6}
+.print-btn{margin-top:16px;padding:9px 22px;background:#185FA5;color:#fff;border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer}
+@media print{.print-btn{display:none}body{margin:20px auto}}
+</style></head><body>
+<h1>Liste de lecture — Maturité</h1>
+<p class="sub">Français · Dépôt personnel · Gymnase de Kirchenfeld</p>
+<div class="section">
+  <div class="sec-title">Informations personnelles</div>
+  <table class="info">
+    <tr><td>Nom &amp; prénom</td><td>`+name+`</td></tr>
+    <tr><td>Classe</td><td>`+klasse+`</td></tr>
+    <tr><td>Groupe de lecture</td><td>`+group+`</td></tr>
+    <tr><td>Thème global</td><td><em>`+theme+`</em></td></tr>
+  </table>
+</div>
+<div class="section">
+  <div class="sec-title">Œuvres choisies</div>
+  <table class="books">
+    <tr><th>#</th><th>Titre</th><th>Auteur·e</th><th>Époque</th><th>Points</th><th>Liste off.</th></tr>
+    `+books.map((b,i)=>`<tr><td>`+(i+1)+`</td><td><strong>`+b.titre+`</strong></td><td>`+b.auteur+`</td><td>`+b.epoque+`</td><td><span class="badge">`+b.pts+` pt`+(b.pts>1?'s':'')+`</span></td><td>`+b.officielle+`</td></tr>`).join('')+`
+    <tr style="background:#f0f5ff"><td colspan="4" style="text-align:right;color:#555;font-size:11px;padding:7px 10px">Total</td><td colspan="2" style="padding:7px 10px"><span class="badge">`+total+` pts</span></td></tr>
+  </table>
+</div>
+<div class="section">
+  <div class="sec-title">Statut des critères</div>
+  <span class="status">Tous les critères remplis ✓</span>
+</div>
+<div class="section" style="border-bottom:none">
+  <div class="sec-title">Signatures</div>
+  <div class="sig-row">
+    <div class="sig-block">
+      <div class="sig-line"><img id="sigimg" src="`+sigData+`" alt="signature élève"></div>
+      <div class="sig-label">Signature de l'élève &nbsp;·&nbsp; `+date+`</div>
+    </div>
+    <div class="sig-block">
+      <div class="lp-line"></div>
+      <div class="sig-label">Visa du professeur</div>
+    </div>
+  </div>
+  <p class="confirm">Je confirme que les œuvres mentionnées ci-dessus n'ont pas été lues en classe (sauf indication contraire), que les informations sont exactes et que j'ai pris connaissance des règles de composition de la liste de lecture pour l'épreuve orale de maturité.</p>
+</div>
+<button class="print-btn" id="printbtn">Als PDF speichern</button>
+<script>
+var img=document.getElementById('sigimg');
+var btn=document.getElementById('printbtn');
+btn.onclick=function(){window.print();};
+if(img.complete){btn.style.display='inline-block';}
+else{btn.style.display='none';img.onload=function(){btn.style.display='inline-block';};}
+<\/script>
+</body></html>`;
+
+  const blob=new Blob([html],{type:'text/html'});
+  window.open(URL.createObjectURL(blob),'_blank');
+}
+
+function sendEmail(){
+  const name=gv('name'),klasse=gv('klasse'),group=gv('group'),theme=gv('theme'),date=gv('sigdate');
+  const books=getBookData();
+  const total=Math.round(books.reduce((s,b)=>s+b.pts,0)*10)/10;
+  const subject='Liste de lecture Maturité — '+name+' ('+klasse+')';
+  const body=[
+    'Bonjour Monsieur Schindele,',
+    '',
+    'Veuillez trouver ci-dessous ma liste de lecture pour l\'épreuve orale de maturité.',
+    '',
+    'Nom & prénom : '+name,
+    'Classe : '+klasse,
+    'Groupe : '+group,
+    'Thème global : '+theme,
+    '',
+    'ŒUVRES CHOISIES',
+    '───────────────',
+    books.map((b,i)=>(i+1)+'. '+b.titre+' — '+b.auteur+' ('+b.epoque+', '+b.pts+' pt'+(b.pts>1?'s':'')+', liste officielle: '+b.officielle+')').join('\n'),
+    '',
+    'Total points : '+total+' / minimum 7',
+    'Statut : Tous les critères remplis ✓',
+    'Signé le : '+date,
+    '',
+    '---',
+    'P.S. Merci de joindre également le PDF avec signature (bouton «Als PDF speichern»).',
+  ].join('\n');
+  window.location.href='mailto:joscha.schindele@gymkirchenfeld.ch?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+}
+
+update();
+</script>
+</body>
+</html>
